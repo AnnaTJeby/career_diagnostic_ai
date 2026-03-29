@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+models_out.txt
+working_model.txt
+list_models.py
+list_all_models.py
+find_flash.py
+find_any_working_model.py
+search.py
+test_parser.py
+my_resume.txt
