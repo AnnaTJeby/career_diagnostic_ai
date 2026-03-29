@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-
+from skill_gap import analyze_gap
 from resume_parser import extract_text, extract_skills
 
 app = FastAPI()
@@ -40,12 +40,8 @@ async def parse_resume(file: UploadFile = File(...)):
 
 @app.post("/check-skill-gap")
 def check_skill_gap(body: SkillGapRequest):
-    # STUB — Person 2 will replace this
-    return {
-        "job_fit_score": 60,
-        "missing_skills": ["Docker", "Statistics"],
-        "top_skills_to_learn": ["Docker", "Statistics", "SQL"]
-    }
+    result = analyze_gap(body.target_role, body.extracted_skills)
+    return result
 
 @app.post("/interview")
 def interview(body: InterviewRequest):
