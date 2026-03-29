@@ -26,25 +26,29 @@ def extract_text(file_bytes: bytes, filename: str) -> str:
 
     return ""  # unsupported format
 
-def extract_skills(text: str) -> list:
-    """Send resume text to Gemini and get back a list of skills."""
+def extract_resume_data(text: str) -> dict:
+    """Send resume text to Gemini and get back a JSON with name and skills."""
     if not text.strip():
-        return []
+        return {"name": "Candidate", "skills": []}
 
     prompt = f"""
-Extract all technical skills from this resume text.
-Return ONLY a valid JSON array of skill name strings.
-No explanation. No markdown. No extra text.
-Example output: ["Python", "SQL", "Docker", "React"]
+    Extract the person's full name and all technical skills from this resume text.
+    Return ONLY a valid JSON object in this format:
+    {{
+      "name": "Full Name Here",
+      "skills": ["Python", "SQL", "etc"]
+    }}
+    
+    If the name is not found, use "Candidate" for the name.
+    No explanation. No markdown. No extra text.
 
-Resume Text:
-{text[:3000]}
-"""
-    # List of models to try in order (using full paths)
+    Resume Text:
+    {text[:4000]}
+    """
+    
     models_to_try = [
         "models/gemini-2.5-flash",
         "models/gemini-1.5-flash",
-        "models/gemini-1.5-flash-latest",
         "models/gemini-pro"
     ]
 
@@ -52,14 +56,14 @@ Resume Text:
         try:
             current_model = genai.GenerativeModel(model_name)
             response = current_model.generate_content(prompt)
-            raw = response.text.strip()
-            # Clean up if Gemini wraps output in markdown code block
-            raw = raw.replace("```json", "").replace("```", "").strip()
-            skills = json.loads(raw)
-            return skills if isinstance(skills, list) else []
+            raw = response.text.strip().replace("```json", "").replace("```", "").strip()
+            data = json.loads(raw)
+            return {
+                "name": data.get("name", "Candidate"),
+                "skills": data.get("skills", [])
+            }
         except Exception as e:
             print(f"⚠️  {model_name} failed: {e}")
             continue
 
-    print("❌ All models failed.")
-    return []
+    return {"name": "Candidate", "skills": []}

@@ -92,12 +92,15 @@ async function handleAnalyzeResume() {
         if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
-        const skillsArray = data.extracted_skills || [];
-        const skillsString = skillsArray.join(", ");
         
-        // Save for next step
+        // Store name and skills
+        const candidateName = data.name || "Candidate";
+        const skillsArray = data.extracted_skills || [];
+        
+        localStorage.setItem("candidateName", candidateName);
         localStorage.setItem("careerSkills", JSON.stringify(skillsArray));
-        updateDisplay("skills-output", skillsString);
+        
+        updateDisplay("skills-output", `Name: ${candidateName}\nSkills: ${skillsArray.join(", ")}`);
     } catch (err) {
         updateDisplay("skills-output", "Something went wrong. Make sure your FastAPI server is running.", true);
     } finally {
@@ -137,13 +140,17 @@ async function handleSkillGap() {
 
 async function handleStartInterview() {
     const role = document.getElementById("targetRole").value || "Professional";
+    const candidateName = localStorage.getItem("candidateName") || "Candidate";
     
     toggleLoading("btn-start-interview", true);
     try {
         const res = await fetch(`${API_BASE}/interview-start`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ role: role })
+            body: JSON.stringify({ 
+                role: role,
+                candidate_name: candidateName
+            })
         });
 
         if (!res.ok) throw new Error("API failed");
@@ -157,7 +164,7 @@ async function handleStartInterview() {
         document.getElementById("btn-interview").style.display = "block";
         document.getElementById("btn-start-interview").style.display = "none";
         
-        updateDisplay("interview-output", "Interview started. AI is waiting for your answer.");
+        updateDisplay("interview-output", `Interview started with ${candidateName}.`);
     } catch (err) {
         updateDisplay("interview-output", "Failed to start interview. Check your backend.", true);
     } finally {
@@ -169,6 +176,7 @@ async function handleInterview() {
     const answerInput = document.getElementById("interviewAnswer");
     const answer = answerInput.value;
     const role = document.getElementById("targetRole").value || "Professional";
+    const candidateName = localStorage.getItem("candidateName") || "Candidate";
 
     if (!answer.trim()) return alert("Please type an answer first.");
 
@@ -180,7 +188,8 @@ async function handleInterview() {
             body: JSON.stringify({ 
                 role: role,
                 question: currentQuestion, 
-                answer: answer 
+                answer: answer,
+                candidate_name: candidateName
             })
         });
 

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 from skill_gap import analyze_gap
-from resume_parser import extract_text, extract_skills
+from resume_parser import extract_text, extract_resume_data
 from interview_agent import evaluate_answer, generate_initial_question
 
 app = FastAPI()
@@ -23,25 +23,30 @@ class SkillGapRequest(BaseModel):
 
 class StartInterviewRequest(BaseModel):
     role: str
+    candidate_name: str = "Candidate"
 
 class InterviewRequest(BaseModel):
     role: str
     question: str
     answer: str
+    candidate_name: str = "Candidate"
 
 # ── API Endpoints ─────────────────────────────────
 
 @app.post("/parse-resume")
 async def parse_resume(file: UploadFile = File(...)):
-    """Real implementation for Person 1"""
+    """Extract name and skills from resume."""
     content = await file.read()
     text = extract_text(content, file.filename)
 
     if not text:
-        return {"error": "Invalid file format", "extracted_skills": []}
+        return {"error": "Invalid file format", "name": "Candidate", "extracted_skills": []}
 
-    skills = extract_skills(text)
-    return {"extracted_skills": skills}
+    data = extract_resume_data(text)
+    return {
+        "name": data.get("name", "Candidate"),
+        "extracted_skills": data.get("skills", [])
+    }
 
 @app.post("/check-skill-gap")
 def check_skill_gap(body: SkillGapRequest):
@@ -50,14 +55,14 @@ def check_skill_gap(body: SkillGapRequest):
 
 @app.post("/interview-start")
 def interview_start(body: StartInterviewRequest):
-    """Generate the first question."""
-    question = generate_initial_question(body.role)
+    """Generate the first question with a persona."""
+    question = generate_initial_question(body.role, body.candidate_name)
     return {"question": question}
 
 @app.post("/interview")
 def interview(body: InterviewRequest):
     """Evaluate and get next question."""
-    result = evaluate_answer(body.question, body.answer, body.role)
+    result = evaluate_answer(body.question, body.answer, body.role, body.candidate_name)
     return result
 
 @app.get("/health")
