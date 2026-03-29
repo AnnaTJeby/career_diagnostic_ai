@@ -86,14 +86,27 @@
                     </div>
                     Interview Simulator
                 </div>
-                <div class="form-group">
+                
+                <div id="ai-question-container" class="result-box" style="margin-bottom: 20px; border-left: 4px solid var(--primary); display: none;">
+                    <strong>AI Interviewer:</strong>
+                    <p id="ai-question-text">Click "Start Interview" to begin...</p>
+                </div>
+
+                <div class="form-group" id="interview-input-group" style="display: none;">
                     <label for="interviewAnswer">Your Answer</label>
                     <input type="text" id="interviewAnswer" placeholder="Type your response here...">
                 </div>
-                <button id="btn-interview" onclick="handleInterview()">
-                    <span>Submit Answer</span>
-                </button>
-                <div id="interview-output" class="result-box">Feedback will appear here...</div>
+
+                <div class="button-group" style="display: flex; gap: 10px;">
+                    <button id="btn-start-interview" onclick="handleStartInterview()">
+                        <span>Start Interview</span>
+                    </button>
+                    <button id="btn-interview" onclick="handleInterview()" style="display: none;">
+                        <span>Submit Answer</span>
+                    </button>
+                </div>
+                
+                <div id="interview-output" class="result-box" style="margin-top: 20px;">Feedback will appear here...</div>
             </section>
         </main>
     </div>
