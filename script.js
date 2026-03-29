@@ -92,15 +92,17 @@ async function handleAnalyzeResume() {
         if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
-        
+
         // Store name and skills
         const candidateName = data.name || "Candidate";
         const skillsArray = data.extracted_skills || [];
-        
+
         localStorage.setItem("candidateName", candidateName);
         localStorage.setItem("careerSkills", JSON.stringify(skillsArray));
-        
-        updateDisplay("skills-output", `Name: ${candidateName}\nSkills: ${skillsArray.join(", ")}`);
+
+        // Profile synchronization activated
+
+        updateDisplay("skills-output", `Analyzed Experience Profile Synchronized.\n\nTechnical Stack identified:\n• ${skillsArray.join("\n• ")}`);
     } catch (err) {
         updateDisplay("skills-output", "Something went wrong. Make sure your FastAPI server is running.", true);
     } finally {
@@ -110,26 +112,46 @@ async function handleAnalyzeResume() {
 
 async function handleSkillGap() {
     const savedSkills = JSON.parse(localStorage.getItem("careerSkills") || "[]");
-    const role = document.getElementById("targetRole").value;
+    const roleInput = document.getElementById("targetRole");
+    const role = roleInput ? roleInput.value : (localStorage.getItem("targetRole") || "Professional");
+    const degree = document.getElementById("degree").value;
+    const interests = document.getElementById("interests").value;
 
     if (!role.trim()) return alert("Please enter a target role.");
     if (savedSkills.length === 0) return alert("Please analyze your resume first.");
+
+    // Preserve role for interview page
+    localStorage.setItem("targetRole", role);
 
     toggleLoading("btn-gap", true);
     try {
         const res = await fetch(`${API_BASE}/check-skill-gap`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
-                target_role: role, 
-                extracted_skills: savedSkills 
+            body: JSON.stringify({
+                target_role: role,
+                extracted_skills: savedSkills,
+                degree: degree,
+                interests: interests
             })
         });
 
         if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
-        const content = `Score: ${data.job_fit_score}%\n\nMissing: ${data.missing_skills.join(", ")}`;
+
+        let content = `Job Fit Score: ${data.job_fit_score}%\n\n`;
+        content += `Missing Requirements:\n• ${data.missing_skills.join("\n• ")}\n\n`;
+        content += `Primary Focus Area:\n• ${data.top_skills_to_learn.join("\n• ")}\n\n`;
+        content += `🚀 Personalized Project Roadmap:\n`;
+        if (Array.isArray(data.project_roadmap)) {
+            data.project_roadmap.forEach((step, index) => {
+                content += `${index + 1}. ${step}\n`;
+            });
+        } else {
+            content += data.project_roadmap;
+        }
+
         updateDisplay("gap-output", content);
     } catch (err) {
         updateDisplay("gap-output", "Something went wrong during gap analysis.", true);
@@ -139,15 +161,16 @@ async function handleSkillGap() {
 }
 
 async function handleStartInterview() {
-    const role = document.getElementById("targetRole").value || "Professional";
+    const roleInput = document.getElementById("targetRole");
+    const role = roleInput ? roleInput.value : (localStorage.getItem("targetRole") || "Professional");
     const candidateName = localStorage.getItem("candidateName") || "Candidate";
-    
+
     toggleLoading("btn-start-interview", true);
     try {
         const res = await fetch(`${API_BASE}/interview-start`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 role: role,
                 candidate_name: candidateName
             })
@@ -157,14 +180,14 @@ async function handleStartInterview() {
 
         const data = await res.json();
         currentQuestion = data.question;
-        
+
         document.getElementById("ai-question-text").innerText = currentQuestion;
         document.getElementById("ai-question-container").style.display = "block";
         document.getElementById("interview-input-group").style.display = "block";
         document.getElementById("btn-interview").style.display = "block";
         document.getElementById("btn-start-interview").style.display = "none";
-        
-        updateDisplay("interview-output", `Interview started with ${candidateName}.`);
+
+        updateDisplay("interview-output", `Interview process initialized.`);
     } catch (err) {
         updateDisplay("interview-output", "Failed to start interview. Check your backend.", true);
     } finally {
@@ -175,7 +198,8 @@ async function handleStartInterview() {
 async function handleInterview() {
     const answerInput = document.getElementById("interviewAnswer");
     const answer = answerInput.value;
-    const role = document.getElementById("targetRole").value || "Professional";
+    const roleInput = document.getElementById("targetRole");
+    const role = roleInput ? roleInput.value : (localStorage.getItem("targetRole") || "Professional");
     const candidateName = localStorage.getItem("candidateName") || "Candidate";
 
     if (!answer.trim()) return alert("Please type an answer first.");
@@ -185,9 +209,9 @@ async function handleInterview() {
         const res = await fetch(`${API_BASE}/interview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 role: role,
-                question: currentQuestion, 
+                question: currentQuestion,
                 answer: answer,
                 candidate_name: candidateName
             })
@@ -197,7 +221,7 @@ async function handleInterview() {
 
         const data = await res.json();
         updateDisplay("interview-output", `Previous Score: ${data.score}/10\n\nFeedback: ${data.feedback}`);
-        
+
         currentQuestion = data.next_question;
         document.getElementById("ai-question-text").innerText = currentQuestion;
         answerInput.value = "";

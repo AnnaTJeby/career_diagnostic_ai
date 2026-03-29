@@ -1,39 +1,45 @@
-# skill_gap.py
+import os
+import json
+from dotenv import load_dotenv
+import google.generativeai as genai
 
-# Dictionary of roles and their standard required skills
-JOB_SKILLS = {
-    "data scientist": ["Python", "SQL", "Statistics", "Machine Learning", "TensorFlow", "Docker"],
-    "web developer":  ["HTML", "CSS", "JavaScript", "React", "Node.js", "Git", "REST API"],
-    "frontend developer": ["React", "TypeScript", "Tailwind CSS", "JavaScript", "UI Design", "Figma"],
-    "backend developer":  ["Python", "FastAPI", "PostgreSQL", "Docker", "REST API", "Git", "Redis"],
-    "ml engineer":    ["Python", "PyTorch", "TensorFlow", "Scikit-learn", "Docker", "GPU Computing"],
-}
+load_dotenv()
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+model = genai.GenerativeModel("gemini-1.5-flash-latest")
 
-def analyze_gap(target_role: str, extracted_skills: list[str]) -> dict:
-    # 1. Normalize strings to lowercase for accurate matching
-    target_role_clean = target_role.lower().strip()
-    required_skills = JOB_SKILLS.get(target_role_clean, [])
+def analyze_gap(target_role: str, extracted_skills: list[str], degree: str = "Not specified", interests: str = "Not specified") -> dict:
+    """Use Gemini to perform a deep skill gap analysis and generate a project roadmap."""
     
-    if not required_skills:
-        # Fallback if the role isn't in our dictionary
+    prompt = f"""
+    You are a career diagnostic engine. 
+    Analyze the gap between a candidate's current skills and a target role.
+    
+    Candidate Profile:
+    - Target Role: {target_role}
+    - Current Skills: {", ".join(extracted_skills)}
+    - Degree: {degree}
+    - Interests: {interests}
+    
+    Provide a detailed analysis in JSON format:
+    1. "job_fit_score": A number (0-100) representing how well the current skills match the target role.
+    2. "missing_skills": A list of key technical skills needed for the role that are missing from their current skills.
+    3. "top_skills_to_learn": The most critical 3 skills they should focus on next.
+    4. "project_roadmap": A 3-step personalized project roadmap to help them bridge the gap and build their portfolio.
+    
+    Return ONLY a valid JSON object. No extra text.
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        raw = response.text.strip().replace("```json", "").replace("```", "").strip()
+        data = json.loads(raw)
+        return data
+    except Exception as e:
+        print(f"Error in LLM gap analysis: {e}")
+        # Fallback to a safer response if the LLM fails
         return {
             "job_fit_score": 0,
-            "missing_skills": ["Role not found in our database yet!"],
-            "top_skills_to_learn": []
+            "missing_skills": ["Analysis temporarily unavailable"],
+            "top_skills_to_learn": ["Check back soon"],
+            "project_roadmap": ["Step 1: Continue learning", "Step 2: Build projects", "Step 3: Network"]
         }
-
-    # 2. Perform the Comparison
-    have = set(s.lower() for s in extracted_skills)
-    need = set(s.lower() for s in required_skills)
-
-    matched = have & need
-    missing = [s for s in required_skills if s.lower() not in have]
-
-    # 3. Calculate Score (Percentage)
-    score = int((len(matched) / len(need)) * 100) if need else 0
-
-    return {
-        "job_fit_score": score,
-        "missing_skills": missing,
-        "top_skills_to_learn": missing[:3]  # Suggest the first 3 gaps
-    }

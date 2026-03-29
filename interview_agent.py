@@ -19,7 +19,7 @@ def generate_initial_question(role: str, candidate_name: str = "Candidate") -> s
     ai_name = random.choice(AI_PERSONAS)
     prompt = f"""
     You are {ai_name}, a technical interviewer for a {role} position. 
-    Greet the candidate, {candidate_name}, by name.
+    Greet the candidate as "Candidate".
     Introduce yourself as {ai_name} from the technical team.
     Ask one initial, high-level technical question to start the interview.
     """
@@ -37,14 +37,13 @@ def evaluate_answer(question: str, answer: str, role: str, candidate_name: str =
     
     prompt = f"""
     You are a technical interviewer for a {role} position. 
-    You are speaking with {candidate_name}.
     Evaluate their answer to the following question.
     
     Question: {question}
     Candidate's Answer: {answer}
     
     1. Rate the answer on a scale of 1-10.
-    2. Provide brief, constructive feedback, addressing them as {candidate_name}.
+    2. Provide brief, constructive feedback, addressing them as "Candidate".
     3. Ask the NEXT logical technical interview question for a {role} position.
     
     Return ONLY a JSON object in this format:

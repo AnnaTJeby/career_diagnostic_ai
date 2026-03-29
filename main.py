@@ -16,10 +16,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Schemas ───────────────────────────────────────
 class SkillGapRequest(BaseModel):
     target_role: str
     extracted_skills: List[str]
+    degree: str = "Not specified"
+    interests: str = "Not specified"
 
 class StartInterviewRequest(BaseModel):
     role: str
@@ -50,7 +51,7 @@ async def parse_resume(file: UploadFile = File(...)):
 
 @app.post("/check-skill-gap")
 def check_skill_gap(body: SkillGapRequest):
-    result = analyze_gap(body.target_role, body.extracted_skills)
+    result = analyze_gap(body.target_role, body.extracted_skills, body.degree, body.interests)
     return result
 
 @app.post("/interview-start")

@@ -1,29 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Interview</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immersive Interview Simulator – CareerLens AI</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .interview-container {
+            max-width: 900px;
+            margin: 0 auto;
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        #ai-question-container {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        #interviewAnswer {
+            font-size: 1.125rem;
+            padding: 1.5rem;
+        }
+
+        .nav-back {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .nav-back:hover {
+            color: var(--primary);
+            transform: translateX(-5px);
+        }
+    </style>
 </head>
 
 <body>
+    <div class="bg-layer"></div>
+    <div class="container">
+        <a href="index.html" class="nav-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Dashboard
+        </a>
 
-    <div class="nav">
-        <a href="resume.html">Resume</a>
-        <a href="skillgap.html">Skill Gap</a>
-        <a href="interview.html">Interview</a>
-        <a href="dashboard.html">Home</a>
+        <div class="interview-container">
+            <header>
+                <h1>Interview Simulation</h1>
+                <p class="subtitle" id="interview-status">Initializing your immersive session...</p>
+            </header>
+
+            <section class="card" style="width: 100%;">
+                <div id="ai-question-container" class="result-box interview-output-box" style="display: block;">
+                    <strong
+                        style="color: var(--primary); display: block; margin-bottom: 1rem; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em;">AI
+                        Technical Interviewer</strong>
+                    <p id="ai-question-text">Ready to begin? Click "Start Session" below.</p>
+                </div>
+
+                <div class="form-group" id="interview-input-group" style="display: none;">
+                    <label for="interviewAnswer">Your Response</label>
+                    <div class="input-with-action">
+                        <input type="text" id="interviewAnswer" placeholder="Type or speak your answer here...">
+                        <button id="btn-mic" type="button" onclick="toggleMic()"
+                            style="width: auto; padding: 1rem; background: rgba(255,255,255,0.05);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="button-group" style="display: flex; gap: 1.5rem;">
+                    <button id="btn-start-interview" onclick="handleStartInterview()"
+                        style="max-width: 300px; margin: 0 auto;">
+                        <span>Start Session</span>
+                    </button>
+                    <button id="btn-interview" onclick="handleInterview()" style="display: none;">
+                        <span>Submit Answer</span>
+                    </button>
+                </div>
+
+                <div id="interview-output" class="result-box" style="margin-top: 3rem; display: none;">Analysis results
+                    will appear here...</div>
+            </section>
+        </div>
     </div>
 
-    <h2>Interview Simulator</h2>
-
-    <input id="answer">
-    <button onclick="interview()">Submit</button>
-
-    <div id="interviewOutput"></div>
-
     <script src="script.js"></script>
-
+    <script>
+        // Page specific initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            const role = document.getElementById("targetRole") ? document.getElementById("targetRole").value : (localStorage.getItem("targetRole") || "Software Engineer");
+            const name = localStorage.getItem("candidateName") || "Candidate";
+            document.getElementById("interview-status").innerText = `Interactive Session for ${name} · Target Role: ${role}`;
+        });
+    </script>
 </body>
 
 </html>

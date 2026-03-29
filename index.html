@@ -11,10 +11,12 @@
 </head>
 
 <body>
+    <div class="bg-layer"></div>
     <div class="container">
         <header>
-            <h1>CareerLens AI</h1>
-            <p class="subtitle">Next-Gen Career Diagnostic Engine for Modern Professionals</p>
+            <h1 id="main-title">CareerLens</h1>
+            <p class="subtitle" id="main-subtitle">Elevate your professional trajectory with our next-gen AI diagnostic
+                engine.</p>
         </header>
 
         <main class="tools-grid">
@@ -22,27 +24,26 @@
             <section class="card" id="resume-section">
                 <div class="card-title">
                     <div class="card-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"></path>
                             <polyline points="14 2 14 8 20 8"></polyline>
                             <line x1="16" y1="13" x2="8" y2="13"></line>
                             <line x1="16" y1="17" x2="8" y2="17"></line>
-                            <line x1="10" y1="9" x2="8" y2="9"></line>
                         </svg>
                     </div>
-                    Resume Analyzer
+                    Resume Analysis
                 </div>
                 <div class="form-group">
-                    <label>Upload Your Resume (PDF, DOCX, or TXT)</label>
+                    <label>Intelligence Upload</label>
                     <div id="drop-zone" class="upload-zone" onclick="document.getElementById('resumeFile').click()">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="17 8 12 3 7 8"></polyline>
                             <line x1="12" y1="3" x2="12" y2="15"></line>
                         </svg>
-                        <p>Drag and drop your file here, or click to browse</p>
+                        <p>Drop your resume or click to browse</p>
                         <div id="file-name" class="file-info" style="display: none;"></div>
                     </div>
                     <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,.txt">
@@ -50,73 +51,92 @@
                 <button id="btn-analyze" onclick="handleAnalyzeResume()">
                     <span>Analyze Resume</span>
                 </button>
-                <div id="skills-output" class="result-box">Extracted skills will appear here...</div>
+                <div id="skills-output" class="result-box">Analysis results will appear here...</div>
             </section>
 
             <!-- Skill Gap Analyzer Card -->
             <section class="card" id="gap-section">
                 <div class="card-title">
                     <div class="card-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
                     </div>
-                    Skill Gap Analyzer
+                    Gap Diagnostics
                 </div>
                 <div class="form-group">
-                    <label for="targetRole">Target Role</label>
-                    <input type="text" id="targetRole" placeholder="e.g. Senior Frontend Developer">
+                    <label for="degree">Acquired Degree</label>
+                    <input type="text" id="degree" placeholder="e.g. B.Tech Computer Science">
+                </div>
+                <div class="form-group">
+                    <label for="interests">Primary Interests</label>
+                    <input type="text" id="interests" placeholder="e.g. AI Research, Web Dev">
+                </div>
+                <div class="form-group">
+                    <label for="targetRole">Target Career Path</label>
+                    <input type="text" id="targetRole" placeholder="e.g. AI Research Engineer">
                 </div>
                 <button id="btn-gap" onclick="handleSkillGap()">
                     <span>Check Skill Gap</span>
                 </button>
-                <div id="gap-output" class="result-box">Analysis will appear here...</div>
+                <div id="gap-output" class="result-box">Diagnostic feedback will appear here...</div>
             </section>
 
             <!-- Interview Simulator Card -->
             <section class="card" id="interview-section">
                 <div class="card-title">
                     <div class="card-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            <path
+                                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z">
+                            </path>
                         </svg>
                     </div>
-                    Interview Simulator
+                    Mock Simulation
                 </div>
-                
-                <div id="ai-question-container" class="result-box" style="margin-bottom: 20px; border-left: 4px solid var(--primary); display: none;">
-                    <strong>AI Interviewer:</strong>
-                    <p id="ai-question-text">Click "Start Interview" to begin...</p>
+
+                <div id="ai-question-container" class="result-box interview-output-box"
+                    style="margin-bottom: 20px; display: none;">
+                    <strong style="color: var(--primary);">AI Interviewer:</strong>
+                    <p id="ai-question-text" style="font-weight: 500; margin-top: 0.5rem;">Initializing interview
+                        agent...</p>
                 </div>
 
                 <div class="form-group" id="interview-input-group" style="display: none;">
-                    <label for="interviewAnswer">Your Answer</label>
+                    <label for="interviewAnswer">Your Response</label>
                     <div class="input-with-action">
-                        <input type="text" id="interviewAnswer" placeholder="Type or speak your response here...">
-                        <button id="btn-mic" type="button" onclick="toggleMic()" title="Voice Typing">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <input type="text" id="interviewAnswer" placeholder="Type or speak your answer...">
+                        <button id="btn-mic" type="button" onclick="toggleMic()"
+                            style="width: auto; padding: 0.8rem; background: rgba(255,255,255,0.05);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
                                 <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
                                 <line x1="12" y1="19" x2="12" y2="23"></line>
-                                <line x1="8" y1="23" x2="16" y2="23"></line>
                             </svg>
                         </button>
                     </div>
                 </div>
 
-                <div class="button-group" style="display: flex; gap: 10px;">
+                <div class="button-group" style="display: flex; gap: 1rem;">
                     <button id="btn-start-interview" onclick="handleStartInterview()">
-                        <span>Start Interview</span>
+                        <span>Start Session</span>
                     </button>
                     <button id="btn-interview" onclick="handleInterview()" style="display: none;">
                         <span>Submit Answer</span>
                     </button>
+                    <a href="interview.html" class="secondary-link"
+                        style="text-decoration: none; display: flex; align-items: center; justify-content: center; width: 100%; padding: 0.8rem; background: rgba(255,255,255,0.05); border-radius: 1rem; color: var(--text-muted); font-weight: 600; font-size: 0.9rem; transition: var(--transition);">
+                        <span>Launch Full Experience ↗</span>
+                    </a>
                 </div>
-                
-                <div id="interview-output" class="result-box" style="margin-top: 20px;">Feedback will appear here...</div>
+
+                <div id="interview-output" class="result-box" style="margin-top: 2rem;">Simulation feedback will appear
+                    here...</div>
             </section>
         </main>
     </div>
