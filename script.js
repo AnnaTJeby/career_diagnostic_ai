@@ -94,7 +94,7 @@ async function handleAnalyzeResume() {
         const data = await res.json();
         const skillsArray = data.extracted_skills || [];
         const skillsString = skillsArray.join(", ");
-
+        
         // Save for next step
         localStorage.setItem("careerSkills", JSON.stringify(skillsArray));
         updateDisplay("skills-output", skillsString);
@@ -117,9 +117,9 @@ async function handleSkillGap() {
         const res = await fetch(`${API_BASE}/check-skill-gap`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                target_role: role,
-                extracted_skills: savedSkills
+            body: JSON.stringify({ 
+                target_role: role, 
+                extracted_skills: savedSkills 
             })
         });
 
@@ -137,7 +137,7 @@ async function handleSkillGap() {
 
 async function handleStartInterview() {
     const role = document.getElementById("targetRole").value || "Professional";
-
+    
     toggleLoading("btn-start-interview", true);
     try {
         const res = await fetch(`${API_BASE}/interview-start`, {
@@ -150,13 +150,13 @@ async function handleStartInterview() {
 
         const data = await res.json();
         currentQuestion = data.question;
-
+        
         document.getElementById("ai-question-text").innerText = currentQuestion;
         document.getElementById("ai-question-container").style.display = "block";
         document.getElementById("interview-input-group").style.display = "block";
         document.getElementById("btn-interview").style.display = "block";
         document.getElementById("btn-start-interview").style.display = "none";
-
+        
         updateDisplay("interview-output", "Interview started. AI is waiting for your answer.");
     } catch (err) {
         updateDisplay("interview-output", "Failed to start interview. Check your backend.", true);
@@ -177,10 +177,10 @@ async function handleInterview() {
         const res = await fetch(`${API_BASE}/interview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+            body: JSON.stringify({ 
                 role: role,
-                question: currentQuestion,
-                answer: answer
+                question: currentQuestion, 
+                answer: answer 
             })
         });
 
@@ -188,7 +188,7 @@ async function handleInterview() {
 
         const data = await res.json();
         updateDisplay("interview-output", `Previous Score: ${data.score}/10\n\nFeedback: ${data.feedback}`);
-
+        
         currentQuestion = data.next_question;
         document.getElementById("ai-question-text").innerText = currentQuestion;
         answerInput.value = "";
@@ -197,4 +197,71 @@ async function handleInterview() {
     } finally {
         toggleLoading("btn-interview", false);
     }
+}
+
+// --- Voice Input (Mic) Logic ---
+
+let recognition;
+let isRecording = false;
+
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+        const resultBox = document.getElementById("interviewAnswer");
+        let finalTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            }
+        }
+        if (finalTranscript) {
+            resultBox.value += (resultBox.value ? " " : "") + finalTranscript;
+        }
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Speech Recognition Error:", event.error);
+        stopBtnRecording();
+    };
+
+    recognition.onend = () => {
+        if (isRecording) {
+            isRecording = false;
+            document.getElementById("btn-mic").classList.remove("recording");
+        }
+    };
+}
+
+function toggleMic() {
+    if (!recognition) {
+        return alert("Speech Recognition is not supported in this browser. Please try Chrome or Edge.");
+    }
+
+    if (isRecording) {
+        stopBtnRecording();
+    } else {
+        startBtnRecording();
+    }
+}
+
+function startBtnRecording() {
+    try {
+        isRecording = true;
+        recognition.start();
+        document.getElementById("btn-mic").classList.add("recording");
+        updateDisplay("interview-output", "Listening... Speak your answer now.");
+    } catch (e) {
+        console.error("Start recording failed:", e);
+    }
+}
+
+function stopBtnRecording() {
+    isRecording = false;
+    recognition.stop();
+    document.getElementById("btn-mic").classList.remove("recording");
+    updateDisplay("interview-output", "Microphone turned off.");
 }
