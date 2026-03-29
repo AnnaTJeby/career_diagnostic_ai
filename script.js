@@ -84,7 +84,7 @@ async function handleAnalyzeResume() {
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch(`${API_BASE}/analyze-resume/`, {
+        const res = await fetch(`${API_BASE}/parse-resume`, {
             method: "POST",
             body: formData
         });
@@ -92,35 +92,43 @@ async function handleAnalyzeResume() {
         if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
-        const skillsString = Array.isArray(data.skills) ? data.skills.join(", ") : data.skills;
-        localStorage.setItem("careerSkills", skillsString);
+        const skillsArray = data.extracted_skills || [];
+        const skillsString = skillsArray.join(", ");
+        
+        // Save for next step
+        localStorage.setItem("careerSkills", JSON.stringify(skillsArray));
         updateDisplay("skills-output", skillsString);
     } catch (err) {
-        updateDisplay("skills-output", "Something went wrong. Please check if the backend is running and supports file uploads.", true);
+        updateDisplay("skills-output", "Something went wrong. Make sure your FastAPI server is running.", true);
     } finally {
         toggleLoading("btn-analyze", false);
     }
 }
 
 async function handleSkillGap() {
-    const savedSkills = localStorage.getItem("careerSkills");
+    const savedSkills = JSON.parse(localStorage.getItem("careerSkills") || "[]");
     const role = document.getElementById("targetRole").value;
 
     if (!role.trim()) return alert("Please enter a target role.");
-    if (!savedSkills) return alert("Please analyze your resume first to extract skills.");
+    if (savedSkills.length === 0) return alert("Please analyze your resume first.");
 
     toggleLoading("btn-gap", true);
     try {
-        const res = await fetch(`${API_BASE}/skill-gap/`, {
+        const res = await fetch(`${API_BASE}/check-skill-gap`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ skills: savedSkills, role })
+            body: JSON.stringify({ 
+                target_role: role, 
+                extracted_skills: savedSkills 
+            })
         });
 
         if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
-        updateDisplay("gap-output", data.analysis || "No analysis returned from engine.");
+        // Custom formatting for the result box
+        const content = `Score: ${data.job_fit_score}%\n\nMissing: ${data.missing_skills.join(", ")}`;
+        updateDisplay("gap-output", content);
     } catch (err) {
         updateDisplay("gap-output", "Something went wrong during gap analysis.", true);
     } finally {
@@ -136,19 +144,19 @@ async function handleInterview() {
 
     toggleLoading("btn-interview", true);
     try {
-        const res = await fetch(`${API_BASE}/interview/`, {
+        const res = await fetch(`${API_BASE}/interview`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ role, answer })
+            body: JSON.stringify({ question: "Tell me about yourself", answer: answer }) // Simple version
         });
 
         if (!res.ok) throw new Error("API failed");
 
         const data = await res.json();
-        updateDisplay("interview-output", data.reply || "No feedback returned.");
+        updateDisplay("interview-output", `Score: ${data.score}/10\nFeedback: ${data.feedback}`);
     } catch (err) {
         updateDisplay("interview-output", "Something went wrong during interview simulation.", true);
     } finally {
         toggleLoading("btn-interview", false);
     }
-}
+}
