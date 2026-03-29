@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CareerLens AI – Professional Career Diagnostic Engine</title>
+    <meta name="description"
+        content="A premium AI-powered suite for resume analysis, skill gap assessment, and interview simulation.">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>CareerLens AI</h1>
+            <p class="subtitle">Next-Gen Career Diagnostic Engine for Modern Professionals</p>
+        </header>
+
+        <main class="tools-grid">
+            <!-- Resume Analyzer Card -->
+            <section class="card" id="resume-section">
+                <div class="card-title">
+                    <div class="card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                            <line x1="10" y1="9" x2="8" y2="9"></line>
+                        </svg>
+                    </div>
+                    Resume Analyzer
+                </div>
+                <div class="form-group">
+                    <label>Upload Your Resume (PDF, DOCX, or TXT)</label>
+                    <div id="drop-zone" class="upload-zone" onclick="document.getElementById('resumeFile').click()">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p>Drag and drop your file here, or click to browse</p>
+                        <div id="file-name" class="file-info" style="display: none;"></div>
+                    </div>
+                    <input type="file" id="resumeFile" accept=".pdf,.doc,.docx,.txt">
+                </div>
+                <button id="btn-analyze" onclick="handleAnalyzeResume()">
+                    <span>Analyze Resume</span>
+                </button>
+                <div id="skills-output" class="result-box">Extracted skills will appear here...</div>
+            </section>
+
+            <!-- Skill Gap Analyzer Card -->
+            <section class="card" id="gap-section">
+                <div class="card-title">
+                    <div class="card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                        </svg>
+                    </div>
+                    Skill Gap Analyzer
+                </div>
+                <div class="form-group">
+                    <label for="targetRole">Target Role</label>
+                    <input type="text" id="targetRole" placeholder="e.g. Senior Frontend Developer">
+                </div>
+                <button id="btn-gap" onclick="handleSkillGap()">
+                    <span>Check Skill Gap</span>
+                </button>
+                <div id="gap-output" class="result-box">Analysis will appear here...</div>
+            </section>
+
+            <!-- Interview Simulator Card -->
+            <section class="card" id="interview-section">
+                <div class="card-title">
+                    <div class="card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    Interview Simulator
+                </div>
+                <div class="form-group">
+                    <label for="interviewAnswer">Your Answer</label>
+                    <input type="text" id="interviewAnswer" placeholder="Type your response here...">
+                </div>
+                <button id="btn-interview" onclick="handleInterview()">
+                    <span>Submit Answer</span>
+                </button>
+                <div id="interview-output" class="result-box">Feedback will appear here...</div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
