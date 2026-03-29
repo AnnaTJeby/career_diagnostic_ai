@@ -5,3 +5,6 @@ __pycache__/
 models_out.txt
 working_model.txt
 .agent/
+venv/
+*.log
+.DS_Store
