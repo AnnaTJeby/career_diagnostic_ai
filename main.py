@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List
 from skill_gap import analyze_gap
 from resume_parser import extract_text, extract_skills
-from interview_agent import evaluate_answer
+from interview_agent import evaluate_answer, generate_initial_question
 
 app = FastAPI()
 
@@ -21,7 +21,11 @@ class SkillGapRequest(BaseModel):
     target_role: str
     extracted_skills: List[str]
 
+class StartInterviewRequest(BaseModel):
+    role: str
+
 class InterviewRequest(BaseModel):
+    role: str
     question: str
     answer: str
 
@@ -44,9 +48,16 @@ def check_skill_gap(body: SkillGapRequest):
     result = analyze_gap(body.target_role, body.extracted_skills)
     return result
 
+@app.post("/interview-start")
+def interview_start(body: StartInterviewRequest):
+    """Generate the first question."""
+    question = generate_initial_question(body.role)
+    return {"question": question}
+
 @app.post("/interview")
 def interview(body: InterviewRequest):
-    result = evaluate_answer(body.question, body.answer)
+    """Evaluate and get next question."""
+    result = evaluate_answer(body.question, body.answer, body.role)
     return result
 
 @app.get("/health")
