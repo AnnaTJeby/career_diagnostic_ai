@@ -7,12 +7,22 @@ import google.generativeai as genai
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
+import random
+
 # Use the model we found worked for your key!
 WORKING_MODEL = "models/gemini-2.5-flash"
 
-def generate_initial_question(role: str) -> str:
-    """Generate the first interview question for a specific role."""
-    prompt = f"You are a technical interviewer for a {role} position. Greet the candidate briefly and ask one initial, high-level technical question to start the interview."
+AI_PERSONAS = ["Sarah", "James", "Alex", "Emily", "Michael", "Sophia", "David", "Jessica"]
+
+def generate_initial_question(role: str, candidate_name: str = "Candidate") -> str:
+    """Generate the first interview question with a persona."""
+    ai_name = random.choice(AI_PERSONAS)
+    prompt = f"""
+    You are {ai_name}, a technical interviewer for a {role} position. 
+    Greet the candidate, {candidate_name}, by name.
+    Introduce yourself as {ai_name} from the technical team.
+    Ask one initial, high-level technical question to start the interview.
+    """
     
     try:
         model = genai.GenerativeModel(WORKING_MODEL)
@@ -20,20 +30,21 @@ def generate_initial_question(role: str) -> str:
         return response.text.strip()
     except Exception as e:
         print(f"Error generating initial question: {e}")
-        return "Can you tell me about your technical background and some projects you've worked on?"
+        return f"Hello {candidate_name}, I'm Sarah. Can you tell me about your technical background?"
 
-def evaluate_answer(question: str, answer: str, role: str) -> dict:
+def evaluate_answer(question: str, answer: str, role: str, candidate_name: str = "Candidate") -> dict:
     """Evaluate a technical answer and provide the next question."""
     
     prompt = f"""
     You are a technical interviewer for a {role} position. 
-    Evaluate the candidate's answer to the following question.
+    You are speaking with {candidate_name}.
+    Evaluate their answer to the following question.
     
     Question: {question}
     Candidate's Answer: {answer}
     
     1. Rate the answer on a scale of 1-10.
-    2. Provide brief, constructive feedback.
+    2. Provide brief, constructive feedback, addressing them as {candidate_name}.
     3. Ask the NEXT logical technical interview question for a {role} position.
     
     Return ONLY a JSON object in this format:
@@ -53,6 +64,6 @@ def evaluate_answer(question: str, answer: str, role: str) -> dict:
         print(f"Error in interview evaluation: {e}")
         return {
             "score": 0,
-            "feedback": "Evaluation failed. Please try again.",
+            "feedback": f"Sorry {candidate_name}, evaluation failed. Please try again.",
             "next_question": "Can you explain another technical concept you're familiar with?"
         }
