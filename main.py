@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from typing import List
 from skill_gap import analyze_gap
 from resume_parser import extract_text, extract_skills
+from interview_agent import evaluate_answer
 
 app = FastAPI()
 
@@ -45,8 +46,8 @@ def check_skill_gap(body: SkillGapRequest):
 
 @app.post("/interview")
 def interview(body: InterviewRequest):
-    # STUB — Person 3 will replace this
-    return {"feedback": "Good answer! Expand on scalability.", "score": 7}
+    result = evaluate_answer(body.question, body.answer)
+    return result
 
 @app.get("/health")
 def health():
